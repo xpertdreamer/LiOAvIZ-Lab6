@@ -2,21 +2,16 @@
 
 int main(int argc, char* argv[]) {
     constexpr int n = 5;
-    auto loops = new int[n]();
-    auto loops2 = new int[n]();
 
-    int **adjMatrix1 = create_adjacent_matrix(n, loops, 0.3, 0.15);
-    print_matrix(adjMatrix1, n, n, "ADJ");
+    Graph graph = create_graph(n, 0.4, 0.15);
+    print_matrix(graph.adj_matrix, n, n, "ADJ");
+    print_list(graph.adj_list, "ADJ LIST 1");
 
-    int** adjMatrix2 = create_adjacent_matrix(n, loops, 0.3, 0.15);
-    print_matrix(adjMatrix2, n, n, "ADJ 2");
+    Graph graph2 = create_graph(n, 0.4, 0.15);
+    print_matrix(graph2.adj_matrix, n, n, "ADJ 2");
+    print_list(graph2.adj_list, "ADJ LIST 2");
 
-    const std::vector<std::vector<int>> adj_list = convert_to_adjacent_list(adjMatrix1, n, loops);
-    print_list(adj_list, "ADJ LIST 1");
-
-    delete_matrix(adjMatrix2, n);
-    delete_matrix(adjMatrix1, n);
-    delete[] loops;
-    delete[] loops2;
+    delete_graph(graph, n);
+    delete_graph(graph2, n);
     return 0;
 }

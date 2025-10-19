@@ -12,14 +12,20 @@
 
 using namespace std;
 
-// Function for allocating memory for a matrix
-extern int** create_adjacent_matrix(int n, int* loops, double edgeProb, double loopProb);
+struct Graph {
+    int** adj_matrix;
+    vector<vector<int>> adj_list;
+    int n;
+};
+
+// Function for allocating memory for a graph
+extern Graph create_graph(int n, double edgeProb = 0.4, double loopProb = 0.15, unsigned int seed = 0);
 
 // Function to display the matrix
 extern void print_matrix(int **matrix, int rows, int cols, const char *name);
 
 // Free matrix memory
-extern void delete_matrix(int** matrix, int n);
+extern void delete_graph(Graph& graph, int n);
 
 // Convert exiting adj matrix to adj list
 extern vector<vector<int>> convert_to_adjacent_list(int** matrix, int n, const int* loops);

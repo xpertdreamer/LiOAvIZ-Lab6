@@ -4,29 +4,41 @@
 
 #include "../../include/backend/matrix_gen.h"
 
-int** create_adjacent_matrix(const int n, int* loops, const double edgeProb, const double loopProb) {
-    const auto G = new int*[n];
-    unsigned int state = time(nullptr);
+#include <chrono>
 
+Graph create_graph(const int n, const double edgeProb, const double loopProb, const unsigned int seed) {
+    Graph graph;
+    graph.n = n;
+
+    // Matrix memory allocating
+    graph.adj_matrix = new int*[n];
     for (int i = 0; i < n; i++) {
-        G[i] = new int[n];
+        graph.adj_matrix[i] = new int[n];
         for (int j = 0; j < n; j++) {
-            G[i][j] = 0;
+            graph.adj_matrix[i][j] = 0;
         }
     }
 
+    // List initialization
+    graph.adj_list.resize(n);
+
+    static unsigned int counter = 0;
+    const auto now = std::chrono::high_resolution_clock::now();
+    const auto nanos = std::chrono::time_point_cast<std::chrono::nanoseconds>(now).time_since_epoch().count();
+    unsigned int state = seed == 0 ? static_cast<unsigned int>(nanos) + counter++ : seed;
+
     for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            state = (state * 1664525 + 1013904223) & 0x7FFFFFFF;
+        for (int j = i; j < n; j++) {
+            state = (state * 1664525 + 1013904223) & 0x7fffffff;
             const int rand_value = static_cast<int>(state) % 100;
 
-            G[i][j] = G[j][i] = (i == j)
-                ? (rand_value < static_cast<int>(loopProb * 100) ? (loops[i] = 1, 1) : (loops[i] = 0, 0))
-                : (rand_value < static_cast<int>(edgeProb * 100) ? 1 : 0);
+            graph.adj_matrix[i][j] = graph.adj_matrix[j][i] = i == j
+                ? (rand_value < static_cast<int>(loopProb * 100) ? (graph.adj_list[i].push_back(i), 1) : 0)
+                : (rand_value < static_cast<int>(edgeProb * 100) ? (graph.adj_list[i].push_back(j) ,1) : 0);
         }
     }
 
-    return G;
+    return graph;
 }
 
 void print_matrix(int **matrix, const int rows, const int cols, const char *name) {
@@ -39,11 +51,14 @@ void print_matrix(int **matrix, const int rows, const int cols, const char *name
     }
 }
 
-void delete_matrix(int** matrix, const int n) {
+void delete_graph(Graph& graph, const int n) {
     for (int i = 0; i < n; i++) {
-        delete[] matrix[i];
+        delete[] graph.adj_matrix[i];
     }
-    delete[] matrix;
+    delete[] graph.adj_matrix;
+    graph.adj_matrix = nullptr;
+    graph.n = 0;
+    graph.adj_list.resize(0);
 }
 
 vector<vector<int>> convert_to_adjacent_list(int** matrix, const int n, const int* loops) {
