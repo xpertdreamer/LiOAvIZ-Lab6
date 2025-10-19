@@ -2,6 +2,7 @@ add_library(lab6_lib
         adapters/console_adapter.cpp
 
         config/config_loader.cpp
+        backend/matrix_gen.cpp
 )
 
 target_include_directories(lab6_lib
