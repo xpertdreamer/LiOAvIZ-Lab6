@@ -42,12 +42,12 @@ Graph create_graph(const int n, const double edgeProb, const double loopProb, co
 }
 
 void print_matrix(int **matrix, const int rows, const int cols, const char *name) {
-    cout << name << ": " << endl;
+    std::cout << name << ": " << std::endl;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            cout << setw(2) << matrix[i][j] << " ";
+            std::cout << std::setw(2) << matrix[i][j] << " ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 }
 
@@ -61,8 +61,8 @@ void delete_graph(Graph& graph, const int n) {
     graph.adj_list.resize(0);
 }
 
-vector<vector<int>> convert_to_adjacent_list(int** matrix, const int n, const int* loops) {
-    vector<vector<int>> result(n);
+std::vector<std::vector<int>> convert_to_adjacent_list(int** matrix, const int n, const int* loops) {
+    std::vector<std::vector<int>> result(n);
 
     for (int i = 0; i < n; i++) {
         loops[i] == 1 ? result[i].push_back(i) : (void)0;
@@ -75,8 +75,8 @@ vector<vector<int>> convert_to_adjacent_list(int** matrix, const int n, const in
     return result;
 }
 
-void print_list(const vector<vector<int> > &list, const char* name) {
-    cout << name << ":" << endl;
+void print_list(const std::vector<std::vector<int> > &list, const char* name) {
+    std::cout << name << ":" << std::endl;
     for (int i = 0; i < list.size(); i++) {
         std::cout << i << ": ";
         for (const int neigh : list[i]) {

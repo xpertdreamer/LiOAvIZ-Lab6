@@ -10,11 +10,9 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
 struct Graph {
     int** adj_matrix;
-    vector<vector<int>> adj_list;
+    std::vector<std::vector<int>> adj_list;
     int n;
 };
 
@@ -28,9 +26,10 @@ extern void print_matrix(int **matrix, int rows, int cols, const char *name);
 extern void delete_graph(Graph& graph, int n);
 
 // Convert exiting adj matrix to adj list
-extern vector<vector<int>> convert_to_adjacent_list(int** matrix, int n, const int* loops);
+extern std::vector<std::vector<int>> convert_to_adjacent_list(int** matrix, int n, const int* loops);
 
 // Display adj list
-extern void print_list(const vector<vector<int>> &list, const char *name);
+extern void print_list(const std::vector<std::vector<int>> &list, const char *name);
 
+//
 #endif //MATRIX_GEN_H
