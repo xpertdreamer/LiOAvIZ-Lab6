@@ -1,7 +1,5 @@
 # LiOAvIZ-Lab6
 
-## Build with CLion
-
 # Core Implementation Architecture
 
 ## 🎲 Random Generation System
@@ -179,3 +177,5 @@ This lets users customize colors without understanding ANSI codes.
 - Would need `std::atomic` for thread safety
 
 This architecture balances performance, safety, and maintainability while providing a solid foundation for graph algorithm experimentation.
+
+## Build with CLion
