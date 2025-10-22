@@ -46,4 +46,14 @@ extern void identify_vertices(Graph& graph, int v, int u);
  * @param u Second vertex number 0 - n-1
  */
 extern void contract_edge(Graph &graph, int v, int u);
+
+extern std::vector<int> get_neighbors(const Graph& graph, int v);
+
+/**
+ * Split one vertex
+ * @param graph Modifiable graph
+ * @param v First vertex number 0 - n-1
+ * @param neighbors_for_v2
+ */
+extern void split_vertex(Graph &graph, int v, const std::vector<int> &neighbors_for_v2);
 #endif //MATRIX_GEN_H

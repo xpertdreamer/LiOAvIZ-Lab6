@@ -41,6 +41,7 @@ class GraphConsoleAdapter {
     void cmd_history();
     void cmd_identify(const std::vector<std::string>& args) const;
     void cmd_contract(const std::vector<std::string>& args) const;
+    void cmd_split(const std::vector<std::string>& args) const;
 };
 
 #endif //CONSOLE_ADAPTER_H

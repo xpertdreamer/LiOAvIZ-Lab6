@@ -339,3 +339,95 @@ void contract_edge(Graph &graph, const int v, const int u) {
         }
     }
 }
+
+std::vector<int> get_neighbors(const Graph& graph, const int v) {
+    if (v < 0 || v >= graph.n) {
+        return {};
+    }
+
+    std::vector<int> neighbors;
+    for (int j = 0; j < graph.n; j++) {
+        if (graph.adj_matrix[v][j] == 1) {
+            neighbors.push_back(j);
+        }
+    }
+    return neighbors;
+}
+
+void split_vertex(Graph &graph, const int v, const std::vector<int> &neighbors_for_v2) {
+    if (v >= graph.n || v < 0) {
+        return;
+    }
+
+    const int old_n = graph.n;
+    const int new_v = old_n;
+    const int new_n = old_n + 1;
+
+    // Create new matrix with one more row/column
+    const auto new_matrix = new int*[new_n];
+    for (int i = 0; i < new_n; i++) {
+        new_matrix[i] = new int[new_n];
+        for (int j = 0; j < new_n; j++) {
+            new_matrix[i][j] = 0;
+        }
+    }
+
+    // Copy old matrix
+    for (int i = 0; i < old_n; i++) {
+        for (int j = 0; j < old_n; j++) {
+            new_matrix[i][j] = graph.adj_matrix[i][j];
+        }
+    }
+
+    // Clean up old matrix
+    for (int i = 0; i < old_n; i++) {
+        delete[] graph.adj_matrix[i];
+    }
+    delete[] graph.adj_matrix;
+    graph.adj_matrix = new_matrix;
+    graph.n = new_n;
+
+    // Resize adj_list and initialize new_v's list
+    graph.adj_list.resize(new_n);
+
+    // Add edge between v and new_v
+    graph.adj_matrix[v][new_v] = graph.adj_matrix[new_v][v] = 1;
+    graph.adj_list[v].push_back(new_v);
+    graph.adj_list[new_v].push_back(v);
+
+    // Move the specified neighbors to new_v
+    for (int neigh : neighbors_for_v2) {
+        if (neigh >= 0 && neigh < old_n && graph.adj_matrix[v][neigh]) {  // Check if actual neighbor
+            // Special case if neigh == v (self-loop)
+            if (neigh == v) {
+                // Move loop to new_v
+                graph.adj_matrix[v][v] = 0;
+                graph.adj_matrix[new_v][new_v] = 1;
+                // Update lists: remove v from adj_list[v] (loop)
+                if (auto it = std::ranges::find(graph.adj_list[v], v); it != graph.adj_list[v].end()) {
+                    graph.adj_list[v].erase(it);
+                }
+                // Add loop to new_v
+                graph.adj_list[new_v].push_back(new_v);
+            } else {
+                // Disconnect from v
+                graph.adj_matrix[v][neigh] = graph.adj_matrix[neigh][v] = 0;
+                // Connect to new_v
+                graph.adj_matrix[new_v][neigh] = graph.adj_matrix[neigh][new_v] = 1;
+                // Update lists
+                // Remove neigh from adj_list[v]
+                if (auto it_v = std::find(graph.adj_list[v].begin(), graph.adj_list[v].end(), neigh); it_v != graph.adj_list[v].end()) {
+                    graph.adj_list[v].erase(it_v);
+                }
+                // Remove v from adj_list[neigh]
+                if (auto it_neigh = std::ranges::find(graph.adj_list[neigh], v); it_neigh != graph.adj_list[neigh].end()) {
+                    graph.adj_list[neigh].erase(it_neigh);
+                }
+                // Add neigh to adj_list[new_v]
+                graph.adj_list[new_v].push_back(neigh);
+                // Add new_v to adj_list[neigh]
+                graph.adj_list[neigh].push_back(new_v);
+            }
+        }
+    }
+}

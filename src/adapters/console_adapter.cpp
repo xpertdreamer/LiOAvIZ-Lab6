@@ -142,6 +142,12 @@ void GraphConsoleAdapter::register_graph_commands() {
         {"graphNum", "v", "u"}
     );
 
+    console.register_command("split",
+        [this](const std::vector<std::string>& args) { this->cmd_split(args); },
+        "Split a vertex",
+        {"graphNum", "v"}
+    );
+
     // console.register_command("save",
     //     [this](const std::vector<std::string>& args) { this->cmd_save(args); },
     //     "Save graph to file",
@@ -305,3 +311,28 @@ void GraphConsoleAdapter::cmd_contract(const std::vector<std::string> &args) con
     }
 }
 
+void GraphConsoleAdapter::cmd_split(const std::vector<std::string> &args) const {
+    if (args.size() < 2) {
+        std::cout << "Usage: contract <graphNum> <v>" << std::endl;
+        return;
+    }
+
+    try {
+        const auto graphNum = std::stoi(args[0]);
+        const auto v = stoi(args[1]);
+        Graph* target = nullptr;
+        if (graphNum == 1) target = graph1.get();
+        else if (graphNum == 2) target = graph2.get();
+        else {
+            std::cout << "Invalid graph number (must be 1 or 2)" << std::endl;
+            return;
+        }
+        if (v > target->n || v < 0) {
+            std::cout << "Invalid vertice number" << std::endl;
+            return;
+        }
+        split_vertex(*target, v, get_neighbors(*target, v));
+    } catch (const std::exception& e) {
+        std::cout << "Error identifying vertices: " << e.what() << std::endl;
+    }
+}
