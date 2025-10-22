@@ -23,6 +23,7 @@ class GraphConsoleAdapter {
     bool graphs_created;
     std::unique_ptr<Graph> graph1;
     std::unique_ptr<Graph> graph2;
+    std::unique_ptr<Graph> graph;
     int n;
 
     void cleanup();
@@ -42,6 +43,10 @@ class GraphConsoleAdapter {
     void cmd_identify(const std::vector<std::string>& args) const;
     void cmd_contract(const std::vector<std::string>& args) const;
     void cmd_split(const std::vector<std::string>& args) const;
+    void cmd_union();
+    void cmd_intersection();
+    void cmd_ring();
+    void cmd_cartesian();
 };
 
 #endif //CONSOLE_ADAPTER_H

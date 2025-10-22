@@ -18,10 +18,11 @@
 #include "../include/backend/matrix_gen.h"
 #include <filesystem>
 #include <fstream>
+#include <utility>
 
 namespace fs = std::filesystem;
 
-GraphConsoleAdapter::GraphConsoleAdapter(const std::string& config_path, const std::string& aliases_path): graphs_created(false), graph1(nullptr), graph2(nullptr), n(0) {
+GraphConsoleAdapter::GraphConsoleAdapter(const std::string& config_path, const std::string& aliases_path): graphs_created(false), graph1(nullptr), graph2(nullptr), graph(nullptr), n(0) {
     // const std::string config_file = ("../../resources/config_files/graph_console.conf");
     // const std::string aliases_file = ("../../resources/config_files/aliases.conf");
 
@@ -116,17 +117,17 @@ void GraphConsoleAdapter::register_graph_commands() {
         );
 
     console.register_command("print",
-        [this](const std::vector<std::string>& args) { this->cmd_print(); },
+        [this](const std::vector<std::string>&) { this->cmd_print(); },
         "Print current graph system"
     );
 
     console.register_command("clear",
-        [this](const std::vector<std::string>& args) { this->cmd_clear(); },
+        [this](const std::vector<std::string>&) { this->cmd_clear(); },
         "Clear console screen"
     );
 
     console.register_command("cleanup",
-        [this](const std::vector<std::string>& args) { this->cmd_cleanup(); },
+        [this](const std::vector<std::string>&) { this->cmd_cleanup(); },
         "Cleanup graph system and free memory"
     );
 
@@ -146,6 +147,27 @@ void GraphConsoleAdapter::register_graph_commands() {
         [this](const std::vector<std::string>& args) { this->cmd_split(args); },
         "Split a vertex",
         {"graphNum", "v"}
+    );
+
+    console.register_command("union",
+        [this](const std::vector<std::string>&) { this->cmd_union(); },
+        "Union graphs",
+        {"graph1", "graph2"}
+    );
+
+    console.register_command("intersect",
+        [this](const std::vector<std::string>&) { this->cmd_intersection(); },
+        "Intersect graphs"
+    );
+
+    console.register_command("ring",
+        [this](const std::vector<std::string>&) { this->cmd_ring(); },
+        "Ring sum of graphs"
+    );
+
+    console.register_command("product",
+        [this](const std::vector<std::string>&) { this->cmd_cartesian(); },
+            "Cartesian product of graphs"
     );
 
     // console.register_command("save",
@@ -170,12 +192,12 @@ void GraphConsoleAdapter::register_graph_commands() {
     );
 
     console.register_command("exit",
-        [this](const std::vector<std::string>& args) { this->cmd_exit(); },
+        [this](const std::vector<std::string>&) { this->cmd_exit(); },
         "Exit the application"
     );
 
     console.register_command("history",
-        [this](const std::vector<std::string>& args) { this->cmd_history(); },
+        [this](const std::vector<std::string>&) { this->cmd_history(); },
             "Show history of commands"
         );
 }
@@ -229,6 +251,12 @@ void GraphConsoleAdapter::cmd_print() const {
     std::cout << "=== GRAPH 2 ===" << std::endl;
     print_matrix(graph2->adj_matrix, graph2->n, graph2->n, "Adjacency Matrix 2");
     print_list(graph2->adj_list, "Adjacency List 2");
+
+    if (graph) {
+        std::cout << "=== GRAPH 3 ===" << std::endl;
+        print_matrix(graph->adj_matrix, graph->n, graph->n, "Adjacency Matrix 3");
+        print_list(graph->adj_list, "Adjacency List 3");
+    }
 }
 
 void GraphConsoleAdapter::cmd_clear() {
@@ -279,6 +307,7 @@ void GraphConsoleAdapter::cmd_identify(const std::vector<std::string> &args) con
             return;
         }
         identify_vertices(*target, v, u);
+        cmd_print();
     } catch (const std::exception& e) {
         std::cout << "Error identifying vertices: " << e.what() << std::endl;
     }
@@ -306,6 +335,7 @@ void GraphConsoleAdapter::cmd_contract(const std::vector<std::string> &args) con
             return;
         }
         contract_edge(*target, v, u);
+        cmd_print();
     } catch (const std::exception& e) {
         std::cout << "Error identifying vertices: " << e.what() << std::endl;
     }
@@ -313,7 +343,7 @@ void GraphConsoleAdapter::cmd_contract(const std::vector<std::string> &args) con
 
 void GraphConsoleAdapter::cmd_split(const std::vector<std::string> &args) const {
     if (args.size() < 2) {
-        std::cout << "Usage: contract <graphNum> <v>" << std::endl;
+        std::cout << "Usage: split <graphNum> <v>" << std::endl;
         return;
     }
 
@@ -332,7 +362,48 @@ void GraphConsoleAdapter::cmd_split(const std::vector<std::string> &args) const 
             return;
         }
         split_vertex(*target, v, get_neighbors(*target, v));
+        cmd_print();
     } catch (const std::exception& e) {
         std::cout << "Error identifying vertices: " << e.what() << std::endl;
+    }
+}
+
+void GraphConsoleAdapter::cmd_union() {
+    try {
+        const auto source_1 = graph1.get();
+        const auto source_2 = graph2.get();
+        GraphConsoleAdapter::graph = std::make_unique<Graph>(graph_union(*source_1, *source_2));
+    } catch (const std::exception& e) {
+        std::cout << "Error while union: " << e.what() << std::endl;
+    }
+}
+
+void GraphConsoleAdapter::cmd_intersection() {
+    try {
+        const auto source_1 = graph1.get();
+        const auto source_2 = graph2.get();
+        GraphConsoleAdapter::graph = std::make_unique<Graph>(graph_intersection(*source_1, *source_2));
+    } catch (const std::exception& e) {
+        std::cout << "Error while intersection: " << e.what() << std::endl;
+    }
+}
+
+void GraphConsoleAdapter::cmd_ring() {
+    try {
+        const auto source_1 = graph1.get();
+        const auto source_2 = graph2.get();
+        GraphConsoleAdapter::graph = std::make_unique<Graph>(ring_sum(*source_1, *source_2));
+    } catch (const std::exception& e) {
+        std::cout << "Error while intersection: " << e.what() << std::endl;
+    }
+}
+
+void GraphConsoleAdapter::cmd_cartesian() {
+    try {
+        const auto source_1 = graph1.get();
+        const auto source_2 = graph2.get();
+        GraphConsoleAdapter::graph = std::make_unique<Graph>(graph_cartesian_product(*source_1, *source_2));
+    } catch (const std::exception& e) {
+        std::cout << "Error while production: " << e.what() << std::endl;
     }
 }

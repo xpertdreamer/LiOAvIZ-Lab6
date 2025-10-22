@@ -30,13 +30,6 @@ target_link_libraries(LiOAvIZ_Lab6 PRIVATE lab6_lib)
 
 target_include_directories(LiOAvIZ_Lab6 PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
-add_custom_command(TARGET LiOAvIZ_Lab6 POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/resources/
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/
-        COMMENT "Copying resources to output directory"
-)
-
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)

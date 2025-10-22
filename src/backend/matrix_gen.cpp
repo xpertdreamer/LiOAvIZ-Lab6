@@ -431,3 +431,220 @@ void split_vertex(Graph &graph, const int v, const std::vector<int> &neighbors_f
         }
     }
 }
+
+Graph graph_union(const Graph &g1, const Graph &g2) {
+    Graph g;
+    g.n = g1.n;
+
+    // Allocate new matrix
+    g.adj_matrix = new int*[g.n];
+    for (int i = 0; i < g.n; i++) {
+        g.adj_matrix[i] = new int[g.n];
+        for (int j = 0; j < g.n; j++) {
+            // Union: an edge exists if it is in g1 OR in g2
+            g.adj_matrix[i][j] = g1.adj_matrix[i][j] || g2.adj_matrix[i][j];
+        }
+    }
+
+    // Initialize adj_list
+    g.adj_list.resize(g.n);
+
+    // Merging adjacency lists
+    for (int i = 0; i < g.n; i++) {
+        // Copying neighbors from the first graph
+        g.adj_list[i] = g1.adj_list[i];
+
+        // Add neighbors from the second graph that do not exist yet
+        for (const int neigh : g2.adj_list[i]) {
+            if (std::ranges::find(g.adj_list[i], neigh) == g.adj_list[i].end()) {
+                g.adj_list[i].push_back(neigh);
+            }
+        }
+    }
+
+    return g;
+}
+
+Graph graph_intersection(const Graph &g1, const Graph &g2) {
+    Graph g;
+    g.n = g1.n;
+
+    // Allocate new matrix
+    g.adj_matrix = new int*[g.n];
+    for (int i = 0; i < g.n; i++) {
+        g.adj_matrix[i] = new int[g.n];
+        for (int j = 0; j < g.n; j++) {
+            // Intersection: an edge exists if it is in g1 AND in g2
+            g.adj_matrix[i][j] = g1.adj_matrix[i][j] && g2.adj_matrix[i][j];
+        }
+    }
+
+    // Initialize adj_list
+    g.adj_list.resize(g.n);
+
+    // Build adjacency list from the intersection matrix
+    for (int i = 0; i < g.n; i++) {
+        for (int j = 0; j < g.n; j++) {
+            if (g.adj_matrix[i][j] == 1) {
+                g.adj_list[i].push_back(j);
+            }
+        }
+    }
+
+    return g;
+}
+
+Graph ring_sum(const Graph &g1, const Graph &g2) {
+    if (g1.n != g2.n) {
+        std::cout << "Error: Graphs must have the same size for ring sum" << std::endl;
+        return Graph();
+    }
+
+    Graph g;
+    g.n = g1.n;
+
+    // Allocate new matrix
+    g.adj_matrix = new int*[g.n];
+    for (int i = 0; i < g.n; i++) {
+        g.adj_matrix[i] = new int[g.n];
+        for (int j = 0; j < g.n; j++) {
+            // Ring sum: XOR operation - edge exists in g1 OR g2 but NOT in both
+            g.adj_matrix[i][j] = g1.adj_matrix[i][j] ^ g2.adj_matrix[i][j];
+        }
+    }
+
+    // Initialize adj_list
+    g.adj_list.resize(g.n);
+
+    // Build adjacency list from the ring sum matrix
+    for (int i = 0; i < g.n; i++) {
+        for (int j = 0; j < g.n; j++) {
+            if (g.adj_matrix[i][j] == 1) {
+                g.adj_list[i].push_back(j);
+            }
+        }
+    }
+
+    return g;
+}
+
+
+// Graph graph_cartesian_product(const Graph &g1, const Graph &g2) {
+//     Graph g;
+//     // The number of vertices in Cartesian product is |V1| * |V2|
+//     g.n = g1.n * g2.n;
+//
+//     // Allocate memory for the new adjacency matrix
+//     g.adj_matrix = new int*[g.n];
+//     for (int i = 0; i < g.n; i++) {
+//         g.adj_matrix[i] = new int[g.n];
+//         // Initialize with zeros (no edges)
+//         for (int j = 0; j < g.n; j++) {
+//             g.adj_matrix[i][j] = 0;
+//         }
+//     }
+//
+//     // Initialize adjacency list with empty vectors
+//     g.adj_list.resize(g.n);
+//
+//     // Build Cartesian product graph
+//     for (int u1 = 0; u1 < g1.n; u1++) {
+//         for (int v1 = 0; v1 < g2.n; v1++) {
+//             // Current vertex index in product graph
+//             const int current_idx = u1 * g2.n + v1;
+//
+//             // Case 1: Connect to vertices with same u1 but adjacent v's in g2
+//             for (const int v2_neigh : g2.adj_list[v1]) {
+//                 // Add edge only in one direction to avoid duplicates
+//                 if (const int neighbor_idx = u1 * g2.n + v2_neigh; !g.adj_matrix[current_idx][neighbor_idx]) {
+//                     g.adj_matrix[current_idx][neighbor_idx] = 1;
+//                     g.adj_matrix[neighbor_idx][current_idx] = 1;
+//                 }
+//             }
+//
+//             // Case 2: Connect to vertices with same v1 but adjacent u's in g1
+//             for (const int u2_neigh : g1.adj_list[u1]) {
+//                 // Add edge only in one direction to avoid duplicates
+//                 if (const int neighbor_idx = u2_neigh * g2.n + v1; !g.adj_matrix[current_idx][neighbor_idx]) {
+//                     g.adj_matrix[current_idx][neighbor_idx] = 1;
+//                     g.adj_matrix[neighbor_idx][current_idx] = 1;
+//                 }
+//             }
+//         }
+//     }
+//
+//     // Build adjacency list from the final adjacency matrix
+//     for (int i = 0; i < g.n; i++) {
+//         g.adj_list[i].clear(); // Clear any previously added neighbors
+//         for (int j = 0; j < g.n; j++) {
+//             if (g.adj_matrix[i][j] == 1) {
+//                 g.adj_list[i].push_back(j);
+//             }
+//         }
+//         // Sort the adjacency list for consistency
+//         std::sort(g.adj_list[i].begin(), g.adj_list[i].end());
+//     }
+//
+//     return g;
+// }
+
+Graph graph_cartesian_product(const Graph &g1, const Graph &g2) {
+    Graph g;
+    // The number of vertices in Cartesian product is |V1| * |V2|
+    g.n = g1.n * g2.n;
+
+    // Allocate memory for the new adjacency matrix
+    g.adj_matrix = new int*[g.n];
+    for (int i = 0; i < g.n; i++) {
+        g.adj_matrix[i] = new int[g.n];
+        // Initialize with zeros (no edges)
+        for (int j = 0; j < g.n; j++) {
+            g.adj_matrix[i][j] = 0;
+        }
+    }
+
+    // Build Cartesian product graph using adjacency matrices
+    for (int u1 = 0; u1 < g1.n; u1++) {
+        for (int v1 = 0; v1 < g2.n; v1++) {
+            // Current vertex index
+            const int i = u1 * g2.n + v1;
+
+            // Case 1: Same u1, adjacent v's in g2
+            for (int v2 = 0; v2 < g2.n; v2++) {
+                if (g2.adj_matrix[v1][v2] == 1) {  // v1 and v2 adjacent in g2
+                    const int j = u1 * g2.n + v2;
+                    if (i != j) {  // Avoid self-loops from this rule
+                        g.adj_matrix[i][j] = 1;
+                        g.adj_matrix[j][i] = 1;
+                    }
+                }
+            }
+
+            // Case 2: Same v1, adjacent u's in g1
+            for (int u2 = 0; u2 < g1.n; u2++) {
+                if (g1.adj_matrix[u1][u2] == 1) {  // u1 and u2 adjacent in g1
+                    const int j = u2 * g2.n + v1;
+                    g.adj_matrix[i][j] = 1;
+                    g.adj_matrix[j][i] = 1;
+                    // Note: self-loops allowed here if u1 == u2 and there's a loop in g1
+                }
+            }
+        }
+    }
+
+    // Build adjacency list from the final adjacency matrix
+    g.adj_list.resize(g.n);
+    for (int i = 0; i < g.n; i++) {
+        g.adj_list[i].clear();
+        for (int j = 0; j < g.n; j++) {
+            if (g.adj_matrix[i][j] == 1) {
+                g.adj_list[i].push_back(j);
+            }
+        }
+        // Remove duplicates and sort
+        std::sort(g.adj_list[i].begin(), g.adj_list[i].end());
+        g.adj_list[i].erase(std::unique(g.adj_list[i].begin(), g.adj_list[i].end()), g.adj_list[i].end());
+    }
+
+    return g;
+}

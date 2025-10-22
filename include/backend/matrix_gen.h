@@ -56,4 +56,36 @@ extern std::vector<int> get_neighbors(const Graph& graph, int v);
  * @param neighbors_for_v2
  */
 extern void split_vertex(Graph &graph, int v, const std::vector<int> &neighbors_for_v2);
+
+/**
+ * Union of two matrices
+ * @param g1 First graph
+ * @param g2 Second graph
+ * @return new Graph
+ */
+extern Graph graph_union(const Graph &g1, const Graph &g2);
+
+/**
+ *
+ * @param g1 First graph
+ * @param g2 Second graph
+ * @return new Graph
+ */
+extern Graph graph_intersection(const Graph &g1, const Graph &g2);
+
+/**
+ *
+ * @param g1 First graph
+ * @param g2 Second graph
+ * @return new Graph
+ */
+extern Graph ring_sum(const Graph &g1, const Graph &g2);
+
+/**
+ *
+ * @param g1 First graph
+ * @param g2 Second graph
+ * @return new Graph
+ */
+extern Graph graph_cartesian_product(const Graph &g1, const Graph &g2);
 #endif //MATRIX_GEN_H
