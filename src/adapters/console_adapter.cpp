@@ -286,6 +286,11 @@ void GraphConsoleAdapter::cmd_history() {
 }
 
 void GraphConsoleAdapter::cmd_identify(const std::vector<std::string> &args) const {
+    if (!graphs_created) {
+        std::cout << "No graphs created. Use 'create' command first." << std::endl;
+        return;
+    }
+
     if (args.size() < 3) {
         std::cout << "Usage: identify <graphNum> <v> <u>" << std::endl;
         return;
@@ -314,6 +319,11 @@ void GraphConsoleAdapter::cmd_identify(const std::vector<std::string> &args) con
 }
 
 void GraphConsoleAdapter::cmd_contract(const std::vector<std::string> &args) const {
+    if (!graphs_created) {
+        std::cout << "No graphs created. Use 'create' command first." << std::endl;
+        return;
+    }
+
     if (args.size() < 3) {
         std::cout << "Usage: contract <graphNum> <v> <u>" << std::endl;
         return;
@@ -342,6 +352,11 @@ void GraphConsoleAdapter::cmd_contract(const std::vector<std::string> &args) con
 }
 
 void GraphConsoleAdapter::cmd_split(const std::vector<std::string> &args) const {
+    if (!graphs_created) {
+        std::cout << "No graphs created. Use 'create' command first." << std::endl;
+        return;
+    }
+
     if (args.size() < 2) {
         std::cout << "Usage: split <graphNum> <v>" << std::endl;
         return;
@@ -369,6 +384,11 @@ void GraphConsoleAdapter::cmd_split(const std::vector<std::string> &args) const 
 }
 
 void GraphConsoleAdapter::cmd_union() {
+    if (!graphs_created) {
+        std::cout << "No graphs created. Use 'create' command first." << std::endl;
+        return;
+    }
+
     try {
         const auto source_1 = graph1.get();
         const auto source_2 = graph2.get();
@@ -379,6 +399,11 @@ void GraphConsoleAdapter::cmd_union() {
 }
 
 void GraphConsoleAdapter::cmd_intersection() {
+    if (!graphs_created) {
+        std::cout << "No graphs created. Use 'create' command first." << std::endl;
+        return;
+    }
+
     try {
         const auto source_1 = graph1.get();
         const auto source_2 = graph2.get();
@@ -389,6 +414,11 @@ void GraphConsoleAdapter::cmd_intersection() {
 }
 
 void GraphConsoleAdapter::cmd_ring() {
+    if (!graphs_created) {
+        std::cout << "No graphs created. Use 'create' command first." << std::endl;
+        return;
+    }
+
     try {
         const auto source_1 = graph1.get();
         const auto source_2 = graph2.get();
@@ -399,6 +429,11 @@ void GraphConsoleAdapter::cmd_ring() {
 }
 
 void GraphConsoleAdapter::cmd_cartesian() {
+    if (!graphs_created) {
+        std::cout << "No graphs created. Use 'create' command first." << std::endl;
+        return;
+    }
+
     try {
         const auto source_1 = graph1.get();
         const auto source_2 = graph2.get();
