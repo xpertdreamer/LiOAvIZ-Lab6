@@ -38,4 +38,12 @@ extern void print_list(const std::vector<std::vector<int>> &list, const char *na
  * @param u Second vertex number 0 - n-1
  */
 extern void identify_vertices(Graph& graph, int v, int u);
+
+/**
+ * Contract an edge between two vertices of graph
+ * @param graph Modifiable graph
+ * @param v First vertex number 0 - n-1
+ * @param u Second vertex number 0 - n-1
+ */
+extern void contract_edge(Graph &graph, int v, int u);
 #endif //MATRIX_GEN_H

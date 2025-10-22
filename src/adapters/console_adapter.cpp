@@ -69,11 +69,11 @@ void GraphConsoleAdapter::run() {
 
 void GraphConsoleAdapter::cleanup() {
     if (graph1 != nullptr) {
-        delete_graph(*graph1, n);
+        delete_graph(*graph1, graph1->n);
         graph1.reset();
     }
     if (graph2 != nullptr) {
-        delete_graph(*graph2, n);
+        delete_graph(*graph2, graph2->n);
         graph2.reset();
     }
     n = 0;
@@ -128,6 +128,18 @@ void GraphConsoleAdapter::register_graph_commands() {
     console.register_command("cleanup",
         [this](const std::vector<std::string>& args) { this->cmd_cleanup(); },
         "Cleanup graph system and free memory"
+    );
+
+    console.register_command("identify",
+        [this](const std::vector<std::string>& args) { this->cmd_identify(args); },
+            "Identify two vertices of graph",
+            {"graphNum", "v", "u"}
+    );
+
+    console.register_command("contract",
+        [this](const std::vector<std::string>& args) { this->cmd_contract(args); },
+        "Contract an edge between two vertices of graph",
+        {"graphNum", "v", "u"}
     );
 
     // console.register_command("save",
@@ -205,11 +217,11 @@ void GraphConsoleAdapter::cmd_print() const {
     }
 
     std::cout << "=== GRAPH 1 ===" << std::endl;
-    print_matrix(graph1->adj_matrix, n, n, "Adjacency Matrix 1");
+    print_matrix(graph1->adj_matrix, graph1->n, graph1->n, "Adjacency Matrix 1");
     print_list(graph1->adj_list, "Adjacency List 1");
 
     std::cout << "=== GRAPH 2 ===" << std::endl;
-    print_matrix(graph2->adj_matrix, n, n, "Adjacency Matrix 2");
+    print_matrix(graph2->adj_matrix, graph2->n, graph2->n, "Adjacency Matrix 2");
     print_list(graph2->adj_list, "Adjacency List 2");
 }
 
@@ -238,3 +250,58 @@ void GraphConsoleAdapter::cmd_help(const std::vector<std::string>& args) {
 void GraphConsoleAdapter::cmd_history() {
     console.show_history();
 }
+
+void GraphConsoleAdapter::cmd_identify(const std::vector<std::string> &args) const {
+    if (args.size() < 3) {
+        std::cout << "Usage: identify <graphNum> <v> <u>" << std::endl;
+        return;
+    }
+
+    try {
+        const auto graphNum = std::stoi(args[0]);
+        const auto v = stoi(args[1]);
+        const auto u = stoi(args[2]);
+        Graph* target = nullptr;
+        if (graphNum == 1) target = graph1.get();
+        else if (graphNum == 2) target = graph2.get();
+        else {
+            std::cout << "Invalid graph number (must be 1 or 2)" << std::endl;
+            return;
+        }
+        if (v > target->n || v < 0 || u > target->n || u < 0 || v == u) {
+            std::cout << "Invalid vertice number" << std::endl;
+            return;
+        }
+        identify_vertices(*target, v, u);
+    } catch (const std::exception& e) {
+        std::cout << "Error identifying vertices: " << e.what() << std::endl;
+    }
+}
+
+void GraphConsoleAdapter::cmd_contract(const std::vector<std::string> &args) const {
+    if (args.size() < 3) {
+        std::cout << "Usage: contract <graphNum> <v> <u>" << std::endl;
+        return;
+    }
+
+    try {
+        const auto graphNum = std::stoi(args[0]);
+        const auto v = stoi(args[1]);
+        const auto u = stoi(args[2]);
+        Graph* target = nullptr;
+        if (graphNum == 1) target = graph1.get();
+        else if (graphNum == 2) target = graph2.get();
+        else {
+            std::cout << "Invalid graph number (must be 1 or 2)" << std::endl;
+            return;
+        }
+        if (v > target->n || v < 0 || u > target->n || u < 0 || v == u) {
+            std::cout << "Invalid vertice number" << std::endl;
+            return;
+        }
+        contract_edge(*target, v, u);
+    } catch (const std::exception& e) {
+        std::cout << "Error identifying vertices: " << e.what() << std::endl;
+    }
+}
+
