@@ -495,39 +495,85 @@ Graph graph_intersection(const Graph &g1, const Graph &g2) {
 }
 
 Graph ring_sum(const Graph &g1, const Graph &g2) {
-    if (g1.n != g2.n) {
-        std::cout << "Error: Graphs must have the same size for ring sum" << std::endl;
-        return {};
-    }
-
     Graph g;
-    g.n = g1.n;
+    g.n = g1.n > g2.n ? g1.n : g2.n;
 
     // Allocate new matrix
     g.adj_matrix = new int*[g.n];
     for (int i = 0; i < g.n; i++) {
         g.adj_matrix[i] = new int[g.n];
         for (int j = 0; j < g.n; j++) {
-            // Ring sum: XOR operation - edge exists in g1 OR g2 but NOT in both
-            g.adj_matrix[i][j] = g1.adj_matrix[i][j] ^ g2.adj_matrix[i][j];
+            int val1 = (i < g1.n && j < g1.n) ? g1.adj_matrix[i][j] : 0;
+            int val2 = (i < g2.n && j < g2.n) ? g2.adj_matrix[i][j] : 0;
+            g.adj_matrix[i][j] = val1 ^ val2;
         }
     }
 
-    // Initialize adj_list
+    // Build adjacency list and check for isolated vertices
     g.adj_list.resize(g.n);
+    std::vector<bool> has_real_edges(g.n, false);
 
-    // Build adjacency list from the ring sum matrix
     for (int i = 0; i < g.n; i++) {
         for (int j = 0; j < g.n; j++) {
             if (g.adj_matrix[i][j] == 1) {
                 g.adj_list[i].push_back(j);
+                // Считаем только ребра между разными вершинами
+                if (i != j) {
+                    has_real_edges[i] = true;
+                    has_real_edges[j] = true;
+                }
             }
         }
     }
 
+    // Remove isolated vertices (including those with only self-loops)
+    std::vector<int> vertices_with_edges;
+    for (int i = 0; i < g.n; i++) {
+        if (has_real_edges[i]) {
+            vertices_with_edges.push_back(i);
+        }
+    }
+
+    // Create new graph without isolated vertices
+    if (vertices_with_edges.size() < g.n) {
+        Graph new_g;
+        new_g.n = static_cast<int>(vertices_with_edges.size());
+
+        if (new_g.n > 0) {
+            std::vector index_map(g.n, -1);
+            for (size_t i = 0; i < vertices_with_edges.size(); i++) {
+                index_map[vertices_with_edges[i]] = i;
+            }
+
+            new_g.adj_matrix = new int*[new_g.n];
+            for (int i = 0; i < new_g.n; i++) {
+                new_g.adj_matrix[i] = new int[new_g.n]{0};
+            }
+
+            new_g.adj_list.resize(new_g.n);
+
+            for (const int old_i : vertices_with_edges) {
+                const int new_i = index_map[old_i];
+                for (const int old_j : vertices_with_edges) {
+                    int new_j = index_map[old_j];
+                    if (g.adj_matrix[old_i][old_j] == 1) {
+                        new_g.adj_matrix[new_i][new_j] = 1;
+                        new_g.adj_list[new_i].push_back(new_j);
+                    }
+                }
+            }
+        }
+
+        // Clean up
+        for (int i = 0; i < g.n; i++) {
+            delete[] g.adj_matrix[i];
+        }
+        delete[] g.adj_matrix;
+        return new_g;
+    }
+
     return g;
 }
-
 
 // Graph graph_cartesian_product(const Graph &g1, const Graph &g2) {
 //     Graph g;
