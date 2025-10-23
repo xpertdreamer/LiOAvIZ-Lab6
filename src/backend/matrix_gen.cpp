@@ -434,7 +434,7 @@ void split_vertex(Graph &graph, const int v, const std::vector<int> &neighbors_f
 
 Graph graph_union(const Graph &g1, const Graph &g2) {
     Graph g;
-    g.n = g1.n;
+    g.n = g1.n > g2.n ? g1.n : g2.n;
 
     // Allocate new matrix
     g.adj_matrix = new int*[g.n];
@@ -467,7 +467,7 @@ Graph graph_union(const Graph &g1, const Graph &g2) {
 
 Graph graph_intersection(const Graph &g1, const Graph &g2) {
     Graph g;
-    g.n = g1.n;
+    g.n = g1.n > g2.n ? g1.n : g2.n;
 
     // Allocate new matrix
     g.adj_matrix = new int*[g.n];
@@ -497,7 +497,7 @@ Graph graph_intersection(const Graph &g1, const Graph &g2) {
 Graph ring_sum(const Graph &g1, const Graph &g2) {
     if (g1.n != g2.n) {
         std::cout << "Error: Graphs must have the same size for ring sum" << std::endl;
-        return Graph();
+        return {};
     }
 
     Graph g;
