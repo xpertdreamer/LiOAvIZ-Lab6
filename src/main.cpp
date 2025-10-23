@@ -1,4 +1,3 @@
-#include "../include/backend/matrix_gen.h"
 #include "../include/adapters/console_adapter.h"
 
 int main(int argc, char* argv[]) {

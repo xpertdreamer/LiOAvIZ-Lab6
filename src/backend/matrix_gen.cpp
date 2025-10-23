@@ -435,14 +435,25 @@ void split_vertex(Graph &graph, const int v, const std::vector<int> &neighbors_f
 Graph graph_union(const Graph &g1, const Graph &g2) {
     Graph g;
     g.n = g1.n > g2.n ? g1.n : g2.n;
+    const auto loopI = g1.n > g2.n ? g2.n : g1.n;
 
     // Allocate new matrix
     g.adj_matrix = new int*[g.n];
     for (int i = 0; i < g.n; i++) {
         g.adj_matrix[i] = new int[g.n];
         for (int j = 0; j < g.n; j++) {
-            // Union: an edge exists if it is in g1 OR in g2
-            g.adj_matrix[i][j] = g1.adj_matrix[i][j] || g2.adj_matrix[i][j];
+            g.adj_matrix[i][j] = 0;
+        }
+    }
+
+    for (int i = 0; i < g.n; i++) {
+        for (int j = 0; j < g.n; j++) {
+            if (i < loopI && j < loopI) {
+                // Union: an edge exists if it is in g1 OR in g2
+                g.adj_matrix[i][j] = g1.adj_matrix[i][j] || g2.adj_matrix[i][j];
+            } else {
+                g.adj_matrix[i][j] = g1.n > g2.n ? g1.adj_matrix[i][j] : g2.adj_matrix[i][j];
+            }
         }
     }
 
@@ -467,7 +478,8 @@ Graph graph_union(const Graph &g1, const Graph &g2) {
 
 Graph graph_intersection(const Graph &g1, const Graph &g2) {
     Graph g;
-    g.n = g1.n > g2.n ? g1.n : g2.n;
+    g.n = g1.n > g2.n ? g2.n : g1.n;
+    const auto loopI = g1.n > g2.n ? g2.n : g1.n;
 
     // Allocate new matrix
     g.adj_matrix = new int*[g.n];
@@ -517,7 +529,6 @@ Graph ring_sum(const Graph &g1, const Graph &g2) {
         for (int j = 0; j < g.n; j++) {
             if (g.adj_matrix[i][j] == 1) {
                 g.adj_list[i].push_back(j);
-                // Считаем только ребра между разными вершинами
                 if (i != j) {
                     has_real_edges[i] = true;
                     has_real_edges[j] = true;
