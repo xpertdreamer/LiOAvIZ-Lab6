@@ -416,7 +416,7 @@ void split_vertex(Graph &graph, const int v, const std::vector<int> &neighbors_f
                 graph.adj_matrix[new_v][neigh] = graph.adj_matrix[neigh][new_v] = 1;
                 // Update lists
                 // Remove neigh from adj_list[v]
-                if (auto it_v = std::find(graph.adj_list[v].begin(), graph.adj_list[v].end(), neigh); it_v != graph.adj_list[v].end()) {
+                if (auto it_v = std::ranges::find(graph.adj_list[v], neigh); it_v != graph.adj_list[v].end()) {
                     graph.adj_list[v].erase(it_v);
                 }
                 // Remove v from adj_list[neigh]
@@ -479,7 +479,6 @@ Graph graph_union(const Graph &g1, const Graph &g2) {
 Graph graph_intersection(const Graph &g1, const Graph &g2) {
     Graph g;
     g.n = g1.n > g2.n ? g2.n : g1.n;
-    const auto loopI = g1.n > g2.n ? g2.n : g1.n;
 
     // Allocate new matrix
     g.adj_matrix = new int*[g.n];
@@ -515,8 +514,8 @@ Graph ring_sum(const Graph &g1, const Graph &g2) {
     for (int i = 0; i < g.n; i++) {
         g.adj_matrix[i] = new int[g.n];
         for (int j = 0; j < g.n; j++) {
-            int val1 = (i < g1.n && j < g1.n) ? g1.adj_matrix[i][j] : 0;
-            int val2 = (i < g2.n && j < g2.n) ? g2.adj_matrix[i][j] : 0;
+            const int val1 = (i < g1.n && j < g1.n) ? g1.adj_matrix[i][j] : 0;
+            const int val2 = (i < g2.n && j < g2.n) ? g2.adj_matrix[i][j] : 0;
             g.adj_matrix[i][j] = val1 ^ val2;
         }
     }
@@ -553,7 +552,7 @@ Graph ring_sum(const Graph &g1, const Graph &g2) {
         if (new_g.n > 0) {
             std::vector index_map(g.n, -1);
             for (size_t i = 0; i < vertices_with_edges.size(); i++) {
-                index_map[vertices_with_edges[i]] = i;
+                index_map[vertices_with_edges[i]] = static_cast<int>(i);
             }
 
             new_g.adj_matrix = new int*[new_g.n];
